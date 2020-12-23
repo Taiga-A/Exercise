@@ -1,0 +1,26 @@
+int Ojld(int,int);
+
+int main()
+{
+    int a,b;
+    scanf("%d%d",&a,&b);
+    printf("%d",Ojld(a,b));
+
+    return 0;
+}
+
+int Ojld(int a, int b)
+{
+    int c;
+
+    if(b>a){
+        c=a;
+        a=b;
+        b=c;
+    }
+    c=a%b;
+    if(c!=0){
+        return Ojld(b,c);
+    }
+    return b;
+}
