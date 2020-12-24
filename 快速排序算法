@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM 150
+
+int num_scanf(int *);
+int Quick_pai_digui(int *,int);
+
+int main()
+{
+    int n,i,a[NUM],*p_a=&a[0];
+
+    n=num_scanf(p_a);
+
+    printf("排序中！！！\n");
+    Quick_pai_digui(p_a,n);
+
+    printf("*******************\n");
+    for(i=0;i<n;i++){
+        printf("%d\t",a[i]);
+    }
+
+    return 0;
+}
+
+int num_scanf(int *p_a)
+{
+    int i,n;
+
+    printf("请输入数字个数：");
+    scanf("%d",&n);
+
+    for(i=0;i<n;i++){
+
+        printf("请输入第 %d 个数字：",i+1);
+        scanf("%d",(p_a+i));
+    }
+
+    return n;
+}
+
+int Quick_pai_digui(int *p_aa,int n)
+{
+    int a_1[n];
+    int a_2[n],*p_a_1=a_1,*p_a_2=a_2,x=0,y=0,a,i;
+
+    a = *p_aa;
+
+    if(n<2){return 0;}
+    else{
+        for(i=1;i<n;i++){
+            if(*p_aa >= *(p_aa+i)){
+                a_1[x]=*(p_aa+i);
+                x++;
+            }
+            else if(*p_aa < *(p_aa+i)){
+                a_2[y]=*(p_aa+i);
+                y++;
+            }
+        }
+        Quick_pai_digui(p_a_1,x);
+        Quick_pai_digui(p_a_2,y);
+    }
+
+    for(i=0;i<x;i++){
+        if(x==0)break;
+        *(p_aa+i) = *(p_a_1+i);
+    }
+
+    *(p_aa+i)= a;
+    i++;
+
+    for(;i<(y+x+1);i++){
+        if(y==0)break;
+        *(p_aa+i) = *(p_a_2+i-x-1);
+    }
+    return 0;
+}
