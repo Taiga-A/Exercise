@@ -1,0 +1,15 @@
+int main(){
+    int n;
+    double m,s=0;
+    scanf("%lf %d",&m,&n);
+
+    for(int i=0;i<n;i++){
+        s+=m;
+        m /=2.0;
+        s+=m;
+    }
+    s-=m;
+    printf("%.2lf %.2lf",m,s);
+
+    return 0;
+}
