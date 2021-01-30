@@ -1,0 +1,13 @@
+int main()
+{
+  int sum=0,x=0;
+  char c;
+
+  while(scanf("%c" ,&c)!=EOF){
+    if(c=='\n'){
+      printf("%d\n" ,sum);
+      sum=0;
+    }else sum+=((int)(c)-48);
+  }
+  return 0;
+}
