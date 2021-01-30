@@ -1,0 +1,67 @@
+char tol(char);
+char tor(char);
+void move(int mpx,int mpy,int* map,int* xy,char* diction);
+int main()
+{
+    int a[100][100],*p_a = &a[0][0];
+    int xy[2],*p_xy = xy,k,m,n;
+    int i,j;
+    char s,*p_s = &s;
+
+
+    scanf("%d %d",&m,&n);
+    for(i=0;i<m;i++){
+        for(j=0;j<n;j++){
+            scanf("%d",&a[i][j]);
+        }
+    }
+    scanf("%d %d %c %d",&xy[0],&xy[1],&s,&k);
+    for(i=0;i<k;i++){
+        move(n,m,p_a,p_xy,p_s);
+    }
+    printf("%d %d",xy[0],xy[1]);
+    return 0;
+}
+
+char tol(char n){
+    if(n=='L'){
+        n='D';
+    }else if(n=='D'){
+        n='R';
+    }else if(n=='R'){
+        n='U';
+    }else if(n=='U'){
+        n='L';
+    }
+    return n;
+}
+char tor(char n){
+    if(n=='L'){
+        n='U';
+    }else if(n=='D'){
+        n='L';
+    }else if(n=='R'){
+        n='D';
+    }else if(n=='U'){
+        n='R';
+    }
+    return n;
+}
+void move(int mpx,int mpy,int* map,int* xy,char* diction){
+    if(*(map+ *xy+ *(xy+1)*mpx)){
+        *(map+ *xy+ *(xy+1)*mpx) = 0;
+        *diction = tor(*diction);
+    }else{
+        *(map+ *xy+ *(xy+1)*mpx) = 1;
+        *diction = tol(*diction);
+    }
+    if(*diction == 'U'){
+        *(xy)-=1;
+    }else if(*diction == 'D'){
+        *(xy)+=1;
+    }else if(*diction == 'L'){
+        *(xy +1) -=1;
+    }else if(*diction == 'R'){
+        *(xy +1) +=1;
+    }
+}
