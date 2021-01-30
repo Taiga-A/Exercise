@@ -1,0 +1,21 @@
+int main()
+{
+    long long int n,k,t;
+    long long int num=1,allnum=0;
+    long long int i;
+
+    scanf("%lld%lld%lld",&n,&k,&t);
+
+    allnum=num;
+
+    if(t!=1){
+        for(i=0;i<t-1;i++){
+            num+=n*(1+i*n + i*n+n)/2;
+            num = num % k;
+            allnum+=num;
+        }
+    }
+
+    printf("%lld",allnum);
+    return 0;
+}
