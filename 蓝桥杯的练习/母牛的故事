@@ -1,0 +1,26 @@
+int add(int);
+int main()
+{
+    int a;
+    do{
+        scanf("%d",&a);
+        if(a==0){
+            break;
+        }
+        printf("%d\n",add(a));
+    }while(1);
+    return 0;
+}
+int add(int a){
+    int all[55]={1,2,3};
+    if(a<4){
+        return all[a-1];
+    }
+    else{
+        for(int i=3;i<a;i++){
+            all[i] = all[i-1] + all[i-3];
+        }
+    }
+        return all[a-1];
+}
+*/
