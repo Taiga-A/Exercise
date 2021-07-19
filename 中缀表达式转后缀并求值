@@ -1,0 +1,329 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define isNum(c) (c == 46 || (c >= 48 && c <= 57))
+#define getLvevr(c) ((c==43||c==45)?3:(c==42||c==47)?4:(c == 94)?5:0)
+
+//队列 栈
+typedef struct List List;
+struct List{
+    char val;
+    List* next;
+};
+List* pushNewList(char,List*);
+char getLastListVal(List* head);
+List* clearLastList(List* head);
+int getListLength(List*);
+
+//队队列
+typedef struct LList LList;
+struct LList {
+    int isMinus;
+    List* valList;
+    LList* next;
+};
+LList* pushNewLList(List* val,LList* head);
+List* getLastLListVal(LList* head);
+LList* clearLastLList(LList* head);
+
+//计算栈
+typedef struct comList comList;
+struct comList {
+    double val;
+    comList* next;
+};
+comList* pushNewComList(double,comList*);
+double getLastComListVal(comList* head);
+comList* clearLastComList(comList* head);
+
+
+LList* strToLList(char*,int,LList*);
+LList* midToRPN(LList* mid,List* pop,int isR);
+double getListNum(List*,double);
+double computeNum(double firstNum,double secondNum,char);
+double computeRPN(LList*, comList*);
+
+/***************  MAIN()  ***************/
+int main() {
+    char infix[1000];
+    scanf("%s", infix);
+
+    LList* mid = strToLList(infix,0,NULL);
+    LList* RPN = midToRPN(mid,NULL,0);
+    printf("%lf", computeRPN(RPN,NULL));
+
+    return 0;
+}
+
+/****************  定 义  ******************/
+//获取 List列表长度
+int getListLength(List* head) {
+    if(head == NULL) return 0;
+    return getListLength(head->next) + 1;
+}
+
+//获取队列代表的数字  高位到低位排列的数字
+double getListNum(List* l,double num) {
+    if(l->val == '.') {
+        double fol = getListNum(l->next,0);
+        for(int i = 0;i < getListLength(l->next); i++)
+            fol /= 10;
+        return num + fol;
+    }
+
+    double res = num * 10 + (l->val - 48);
+    if(l->next == NULL) return res;
+    return getListNum(l->next, res);
+}
+
+//队列： 创建头节点 或 压入子节点
+List* pushNewList(char c,List* head) {
+    if(head == NULL) {
+        List* this = (List*)malloc(sizeof(List));
+        this->val = c;
+        this->next = NULL;
+        return this;
+    }
+    else if(head->next == NULL) {
+        head->next = (List*)malloc(sizeof(List));
+        head->next->next = NULL;
+        head->next->val = c;
+        return head;
+    }
+    pushNewList(c,head->next);
+    return head;
+}
+
+//队队列：创建头节点 或 压入子节点
+LList* pushNewLList(List* val,LList* head) {
+    if(head == NULL) {
+        LList* this = (LList*)malloc(sizeof(LList));
+        this->valList = val;
+        this->next = NULL;
+        this->isMinus = 1;
+        return this;
+    }
+    else if(head->next == NULL) {
+        head->next = (LList*)malloc(sizeof(LList));
+        head->next->next = NULL;
+        head->next->valList = val;
+        head->next->isMinus = 1;
+        return head;
+    }
+    pushNewLList(val,head->next);
+    return head;
+}
+
+//计算栈：创建头节点 或 压入子节点
+comList* pushNewComList(double num,comList * head) {
+    if(head == NULL) {
+        comList* this = (comList*)malloc(sizeof(comList));
+        this->val = num;
+        this->next = NULL;
+        return this;
+    }
+    else if(head->next == NULL) {
+        head->next = (comList*)malloc(sizeof(comList));
+        head->next->next = NULL;
+        head->next->val = num;
+        return head;
+    }
+    pushNewComList(num,head->next);
+    return head;
+}
+
+//队列： 获取最后一个节点值
+char getLastListVal(List* head) {
+    if(head == NULL) {
+        return 'a';
+    }
+    if(head -> next == NULL) {
+        return head->val;
+    }
+
+    return getLastListVal(head->next);
+}
+
+//队队列：获取最后一个节点值
+List* getLastLListVal(LList* head) {
+    if(head == NULL) {
+        return NULL;
+    }
+    if(head -> next == NULL) {
+        return head->valList;
+    }
+
+    return getLastLListVal(head->next);
+}
+
+//计算栈：获取最后一个节点值
+double getLastComListVal(comList * head) {
+    if(head == NULL) {
+        return 0;
+    }
+    if(head -> next == NULL) {
+        return head->val;
+    }
+
+    return getLastComListVal(head->next);
+}
+
+//队列：去除最后一个节点
+List* clearLastList(List* head) {
+    if(head == NULL) return NULL;
+    if(head->next == NULL) {
+        free(head);
+        return NULL;
+    }
+    head->next = clearLastList(head->next);
+    return head;
+}
+
+//队队列：去除最后一个节点
+LList* clearLastLList(LList* head) {
+    if(head == NULL) return NULL;
+    if(head->next == NULL) {
+        free(head);
+        return NULL;
+    }
+    head->next = clearLastLList(head->next);
+    return head;
+}
+
+//计算栈：去除最后一个节点
+comList* clearLastComList(comList* head) {
+    if(head == NULL) return NULL;
+    if(head->next == NULL) {
+        free(head);
+        return NULL;
+    }
+    head->next = clearLastComList(head->next);
+    return head;
+}
+
+//字符串 转 队队列
+LList* strToLList(char* s,const int start, LList* this) {
+    if(!s || s[start] == '\0') return NULL;
+
+    if(this == NULL) {
+        this = pushNewLList(NULL,NULL);
+    }
+
+    int i;
+
+    for(i = start; s[i] != '\0'; i++) {
+        if(isNum(s[i])) {
+            this->valList = pushNewList(s[i],this->valList);
+            if( !(isNum(s[i+1])) ) break;
+        } else {
+            this->valList = pushNewList(s[i],this->valList);
+            break;
+        }
+    }
+
+    if(s[i] != '\0')
+        this->next = strToLList(s,++i, this->next);
+    if(!(isNum(this->valList->val)) && this->valList->val != ')' && this->next->valList->val == '-') {
+        LList* p_null = this->next->next;
+        free(this->next);
+        this->next = p_null;
+        this->next->isMinus = -1;
+
+    }
+    return this;
+}
+
+//中缀表达式队队列 转 后缀表达式队队列
+LList* midToRPN(LList* mid,List* pop,int isR) {
+    LList* this = NULL;
+
+    if(mid == NULL) {
+        if(pop == NULL) return NULL;
+
+        char res = getLastListVal(pop);
+        pop = clearLastList(pop);
+        this = pushNewLList(pushNewList(res,NULL),NULL);
+        this->next = midToRPN(mid,pop,isR);
+
+        return this;
+    }
+
+    if(isR) {
+        char res = getLastListVal(pop);
+        pop = clearLastList(pop);
+
+        if(res == 'a' || res == '(') {
+            isR = 0;
+            this = midToRPN(mid, pop, isR);
+        }
+        else {
+            this = pushNewLList(pushNewList(res,NULL),NULL);
+            this->next = midToRPN(mid,pop,isR);
+        }
+
+    } else if(isNum(mid->valList->val)) {
+        this = pushNewLList(mid->valList, NULL);
+        this->isMinus = mid->isMinus;
+        this->next = midToRPN(mid->next,pop,isR);
+    } else if(mid->valList->val == '(') {
+        pop = pushNewList('(',pop);
+        this = midToRPN(mid->next,pop,isR);
+    } else if(mid->valList->val == ')') {
+        isR = 1;
+        this = midToRPN(mid->next,pop,isR);
+    } else {
+        char res = getLastListVal(pop);
+        if(res != 'a' && res != '(' && getLvevr(res) >= getLvevr(mid->valList->val)) {
+            pop = clearLastList(pop);
+            this = pushNewLList(pushNewList(res,NULL), NULL);
+            this->next = midToRPN(mid,pop,isR);
+        } else {
+            pop = pushNewList(mid->valList->val,pop);
+            this = midToRPN(mid->next,pop,isR);
+        }
+    }
+
+
+    return this;
+}
+
+//计算后缀表达式
+double computeRPN(LList* this, comList* pop) {
+    if(this == NULL) return getLastComListVal(pop);
+    if(isNum(this->valList->val)) {
+        pop = pushNewComList(this->isMinus * getListNum(this->valList, 0),pop);
+    } else {
+        double secondNum = getLastComListVal(pop);
+        pop = clearLastComList(pop);
+        double firstNum = getLastComListVal(pop);
+        pop = clearLastComList(pop);
+
+        double res = computeNum(firstNum,secondNum,this->valList->val);
+        pop = pushNewComList(res,pop);
+    }
+    return computeRPN(this->next,pop);
+}
+
+//通过符号 计算两数的值
+double computeNum(double firstNum,double secondNum,char c) {
+    switch (c) {
+        case '+':
+            return firstNum + secondNum;
+        case '-':
+            return firstNum - secondNum;
+        case '*':
+            return firstNum * secondNum;
+        case '/':
+            return firstNum / secondNum;
+        case '^':
+            if(secondNum == 0) return 1;
+            if(firstNum == 0 || secondNum == 1) return firstNum;
+            double res = firstNum;
+            for(int i = 1; i < secondNum; i++) {
+                res *= firstNum;
+            }
+            return res;
+        default:
+            return 0;
+    }
+}
